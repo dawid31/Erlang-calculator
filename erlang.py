@@ -54,7 +54,19 @@ def calculate_erlang_n(traffic, blocking_rate):
 
 
 def calculate_erlang_a(lines, blocking_rate):
-    return "work in progress"
+    """
+    calculate traffic in erlangs
+    :param lines: the number of lines
+    :param blocking_rate: blocking rate
+    :return: number of lines
+    """
+    traffic = 0
+    p_search = blocking_rate
+    while float(p_search) <= blocking_rate:
+        traffic += .1
+        p_search = calculate_erlang_b(traffic, lines)
+
+    return traffic
 
 print(calculate_erlang_b(100, 10))
 #print(calculate_erlang_n(100, 0.901074))
