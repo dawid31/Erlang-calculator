@@ -1,6 +1,4 @@
-from gui import ErlangCalculator
+from gui import ErlangCalculatorApp
 
 if __name__ == '__main__':
-    ErlangCalculator().run()
-
-
+    ErlangCalculatorApp().run()
