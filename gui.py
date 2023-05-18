@@ -33,14 +33,12 @@ class MainScreen(Screen):
         self.layout.add_widget(self.intensity_label)
 
         self.intensity = TextInput(multiline=False, size_hint=(0.3, None), height=40)
-        self.intensity.bind(on_text=self.check_input)
         self.layout.add_widget(self.intensity)
 
         self.channels_label = Label(text="Liczba kanałów:", font_size=40)
         self.layout.add_widget(self.channels_label)
 
         self.channels = TextInput(multiline=False, size_hint=(0.3, None), height=40)
-        self.channels.bind(on_text=self.check_input)
         self.layout.add_widget(self.channels)
 
         self.submit = Button(text="Oblicz", font_size=40)
@@ -74,13 +72,54 @@ class MainScreen(Screen):
             self.intensity_label.text = "Intensywność zgłoszeń (w erlangach)"
             self.channels_label.text = "Współczynnik blokady:"
 
-    def check_input(self, instance, value):
-        # Perform input validation here
-        pass
 
     def calculate(self, instance):
-        # Perform calculation logic here
-        pass
+        # Define the function that will be called when the Run button is pressed
+        mode = self.mode_spinner.text
+        if mode == 'Natężenie ruchu':
+            try:
+                field1 = int(self.intensity.text)
+                field2 = float(self.channels.text)
+                result = calculate_erlang_a(field1, field2) 
+                self.result_label.text = str(round(float(result), 5))
+            except ValueError:
+                value_error_message = '''Podano nieprawidlowe wartosci w polu/polach.
+Sprawdz w instrukcji w lewym dolnym rogu co poszlo nie tak.'''
+                popup_content = BoxLayout(orientation='vertical', padding=10)
+                popup_content.add_widget(Label(text=value_error_message))
+                popup = Popup(title="Podano nieprawidlowe wartosci", content=popup_content, size_hint=(None, None), size=(600, 300))
+                popup.open()
+
+        elif mode == 'Współczynnik blokady':
+            try:
+                if "," in self.intensity.text:
+                    self.intensity.text.replace(",", ".") #not working properly
+                field1 = float(self.intensity.text)
+                field2 = int(self.channels.text)
+                result = calculate_erlang_b(field1, field2) 
+                self.result_label.text = str(round(float(result), 5))
+            except ValueError:
+                value_error_message = '''Podano nieprawidlowe wartosci w polu/polach.
+Sprawdz dwie ostatnie linijki w instrukcji w lewym dolnym rogu i upewnij sie, ze w pola wpisane sa prawidlowe wartosci'''
+                popup_content = BoxLayout(orientation='vertical', padding=10)
+                popup_content.add_widget(Label(text=value_error_message))
+                popup = Popup(title="Podano nieprawidlowe wartosci", content=popup_content, size_hint=(None, None), size=(600, 300))
+                popup.open()
+
+
+        elif mode == 'Ilość linii/kanałów':
+            try:
+                field1 = float(self.intensity.text)
+                field2 = float(self.channels.text)
+                result = calculate_erlang_n(field1, field2)
+                self.result_label.text = str(round(float(result), 5))
+            except ValueError:
+                value_error_message = '''Podano nieprawidlowe wartosci w polu/polach.
+Sprawdz w instrukcji w lewym dolnym rogu co poszlo nie tak.'''
+                popup_content = BoxLayout(orientation='vertical', padding=10)
+                popup_content.add_widget(Label(text=value_error_message))
+                popup = Popup(title="Podano nieprawidlowe wartosci", content=popup_content, size_hint=(None, None), size=(600, 300))
+                popup.open()
 
 
 class SecondScreen(Screen):
