@@ -117,44 +117,61 @@ class SecondScreen(Screen):
         super(SecondScreen, self).__init__(**kwargs)
         self.layout = GridLayout(cols=1, orientation='tb-lr')
 
-        # Slider and Field Layout
-        slider_layout = BoxLayout(orientation='horizontal', size_hint=(1, None), height=50)
-        
-        # Slider
-        self.slider = Slider(min=0, max=100, value=50, step=1)
-        self.slider.bind(value=self.on_slider_value_change)
-        slider_layout.add_widget(self.slider)
+        # Mode label
+        self.mode_label = Label(
+            text="Szkicowanie wykresu wsp. blokady \n dla wybranego przedziału:",
+            font_size=40)
+        self.layout.add_widget(self.mode_label)
 
-        # Field displaying slider value
-        self.value_field = TextInput(text=str(self.slider.value), multiline=False, size_hint=(None, None), width=100, height=50)
-        self.value_field.bind(text=self.on_value_field_text_change)
-        slider_layout.add_widget(self.value_field)
+        # Create sliders
+        self.slider1, self.value_field1 = self.create_slider("Intensywność zgłoszeń (w erlangach):", 0, 100)
+        self.slider2, self.value_field2 = self.create_slider("Ilość linii:", 0, 100)
 
-        self.layout.add_widget(slider_layout)
-
-        self.graph_button = Button(text="Oblicz", font_size=40)
-        slider_layout.add_widget(self.graph_button)
-
+        # Add sliders to the layout
+        self.layout.add_widget(self.slider1)
+        self.layout.add_widget(self.slider2)
 
         # Going back to the main screen part of GUI
-        box_layout2 = BoxLayout(orientation='horizontal', size_hint=(1, None), height=50)
         button = Button(text="Go to Main Screen", size_hint=(None, None), size=(200, 50))
         button.bind(on_press=self.goto_main_screen)
-        box_layout2.add_widget(button)
-        self.layout.add_widget(box_layout2)
+        self.layout.add_widget(button)
+
+        # Add the layout to the screen
         self.add_widget(self.layout)
 
+    def create_slider(self, label_text, min_value, max_value):
+        # Create slider and label
+        slider = Slider(min=min_value, max=max_value, value=(max_value - min_value) / 2, step=1)
+        label = Label(text=label_text)
+
+        # Field displaying slider value
+        value_field = TextInput(text=str(slider.value), multiline=False, size_hint=(None, None), width=100, height=50)
+
+        slider.bind(value=self.on_slider_value_change)
+        value_field.bind(text=self.on_value_field_text_change)
+
+        # Add slider, label, and value field to a horizontal layout
+        slider_layout = BoxLayout(orientation='horizontal')
+        slider_layout.add_widget(label)
+        slider_layout.add_widget(slider)
+        slider_layout.add_widget(value_field)
+
+        return slider_layout, value_field
+
     def on_slider_value_change(self, instance, value):
-        self.value_field.text = str(value)
+        value_field = instance.parent.children[2]  # Get the value field from the parent layout
+        value_field.text = str(value)  # Update the value field with the slider value
 
     def on_value_field_text_change(self, instance, text):
         try:
             value = float(text)
-            if self.slider.min <= value <= self.slider.max:
-                self.slider.value = value
+            slider_layout = instance.parent  # Get the slider layout
+            slider = slider_layout.children[1]  # Get the slider from the slider layout
+
+            if slider.min <= value <= slider.max:
+                slider.value = value  # Update the slider with the value
         except ValueError:
             pass
-
     def goto_main_screen(self, instance):
         self.manager.current = 'main'
 
