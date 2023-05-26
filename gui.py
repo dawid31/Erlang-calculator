@@ -14,6 +14,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from instruction import instruction_text
 from kivy.uix.slider import Slider
+from plot import plot_graph
+from utilities import display_value_error
 
 
 class MainScreen(Screen):
@@ -58,6 +60,7 @@ class MainScreen(Screen):
         box_layout.add_widget(button)
         self.add_widget(self.layout)
 
+
     def goto_second_screen(self, instance):
         self.manager.current = 'second'
 
@@ -72,14 +75,6 @@ class MainScreen(Screen):
             self.intensity_label.text = "Intensywność zgłoszeń (w erlangach)"
             self.channels_label.text = "Współczynnik blokady:"
 
-    def display_value_error(self):
-        value_error_message = '''Podano nieprawidlowe wartosci w polu/polach.
-        Sprawdz w instrukcji w lewym dolnym rogu co poszlo nie tak.'''
-        popup_content = BoxLayout(orientation='vertical', padding=10)
-        popup_content.add_widget(Label(text=value_error_message))
-        popup = Popup(title="Podano nieprawidlowe wartosci", content=popup_content, size_hint=(None, None), size=(600, 300))
-        popup.open()
-
 
     def calculate(self, instance):
         # Define the function that will be called when the Run button is pressed
@@ -91,7 +86,7 @@ class MainScreen(Screen):
                 result = calculate_erlang_a(field1, field2) 
                 self.result_label.text = f"{mode}: {str(round(float(result), 5))}"
             except ValueError:
-                self.display_value_error()
+                display_value_error()
 
         elif mode == 'Współczynnik blokady':
             try:
@@ -100,7 +95,7 @@ class MainScreen(Screen):
                 result = calculate_erlang_b(field1, field2) 
                 self.result_label.text = f"{mode}: {str(round(float(result), 5))}"
             except ValueError:
-                self.display_value_error()
+                display_value_error()
 
         elif mode == 'Ilość linii/kanałów':
             try:
@@ -109,11 +104,12 @@ class MainScreen(Screen):
                 result = calculate_erlang_n(field1, field2)
                 self.result_label.text = f"{mode}: {str(round(float(result), 5))}"
             except ValueError:
-                self.display_value_error()
+                display_value_error()
 
 
 class SecondScreen(Screen):
     def __init__(self, **kwargs):
+
         super(SecondScreen, self).__init__(**kwargs)
         self.layout = GridLayout(cols=1, orientation='tb-lr')
 
@@ -122,58 +118,40 @@ class SecondScreen(Screen):
             text="Szkicowanie wykresu wsp. blokady \n dla wybranego przedziału:",
             font_size=40)
         self.layout.add_widget(self.mode_label)
+        self.add_widget(self.layout)
 
-        # Create sliders
-        self.slider1, self.value_field1 = self.create_slider("Intensywność zgłoszeń (w erlangach):", 0, 100)
-        self.slider2, self.value_field2 = self.create_slider("Ilość linii:", 0, 100)
+        self.start_value_label = Label(text="Wartość początkowa")
+        self.layout.add_widget(self.start_value_label)
+        self.start_value = TextInput(multiline=False, size_hint=(0.3, None), height=40)
+        self.layout.add_widget(self.start_value)
 
-        # Add sliders to the layout
-        self.layout.add_widget(self.slider1)
-        self.layout.add_widget(self.slider2)
+        self.end_value_label = Label(text="Wartość końcowa")
+        self.layout.add_widget(self.end_value_label)
+        self.end_value = TextInput(multiline=False, size_hint=(0.3, None), height=40)
+        self.layout.add_widget(self.end_value)
+
+        self.plot = Button(text="Pokaz wykres", font_size=40,)
+        self.plot.bind(on_press=self.plot_graph_callback)
+        self.layout.add_widget(self.plot)
 
         # Going back to the main screen part of GUI
         button = Button(text="Go to Main Screen", size_hint=(None, None), size=(200, 50))
         button.bind(on_press=self.goto_main_screen)
         self.layout.add_widget(button)
 
-        # Add the layout to the screen
-        self.add_widget(self.layout)
-
-    def create_slider(self, label_text, min_value, max_value):
-        # Create slider and label
-        slider = Slider(min=min_value, max=max_value, value=(max_value - min_value) / 2, step=1)
-        label = Label(text=label_text)
-
-        # Field displaying slider value
-        value_field = TextInput(text=str(slider.value), multiline=False, size_hint=(None, None), width=100, height=50)
-
-        slider.bind(value=self.on_slider_value_change)
-        value_field.bind(text=self.on_value_field_text_change)
-
-        # Add slider, label, and value field to a horizontal layout
-        slider_layout = BoxLayout(orientation='horizontal')
-        slider_layout.add_widget(label)
-        slider_layout.add_widget(slider)
-        slider_layout.add_widget(value_field)
-
-        return slider_layout, value_field
-
-    def on_slider_value_change(self, instance, value):
-        value_field = instance.parent.children[2]  # Get the value field from the parent layout
-        value_field.text = str(value)  # Update the value field with the slider value
-
-    def on_value_field_text_change(self, instance, text):
+    
+    def plot_graph_callback(self, instance):
         try:
-            value = float(text)
-            slider_layout = instance.parent  # Get the slider layout
-            slider = slider_layout.children[1]  # Get the slider from the slider layout
-
-            if slider.min <= value <= slider.max:
-                slider.value = value  # Update the slider with the value
+            start = float(self.start_value.text)
+            end = float(self.end_value.text)
+            plot_graph(start, end)  
         except ValueError:
-            pass
+            display_value_error()
+    
+
     def goto_main_screen(self, instance):
         self.manager.current = 'main'
+        
 
 class ErlangCalculatorApp(App):
     def build(self):
