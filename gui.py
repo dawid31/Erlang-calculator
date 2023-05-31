@@ -12,16 +12,19 @@ from functools import partial
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
-from instruction import instruction_text
+from instruction import instruction_text_1, instruction_text_2
 from kivy.uix.slider import Slider
 from plot import plot_graph
 from utilities import display_value_error
-
+from kivy.utils import escape_markup
 
 class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
-        self.layout = GridLayout(cols=1, orientation='tb-lr')
+        self.layout = GridLayout(
+            cols=1,
+            orientation='tb-lr',
+        )
 
         self.mode_spinner = Spinner(
             text="Wybierz co chcesz policzyć?",
@@ -31,6 +34,9 @@ class MainScreen(Screen):
         )
         self.mode_spinner.bind(text=self.update_input_labels)
         self.layout.add_widget(self.mode_spinner)
+        self.mode_text = "Wybierz tryb w lewym górnym rogu"
+        self.mode_label = Label(text='[u]' + escape_markup(self.mode_text) + '[/u]', markup=True, font_size=40)
+        self.layout.add_widget(self.mode_label)
 
         self.intensity_label = Label(text="Intensywność zgłoszeń (w erlangach):", font_size=40)
         self.layout.add_widget(self.intensity_label)
@@ -48,32 +54,64 @@ class MainScreen(Screen):
         self.submit.bind(on_press=self.calculate)
         self.layout.add_widget(self.submit)
 
-        self.result_label = Label(text="Tu pojawi się wynik", font_size=40)
+        self.result_label = Label(text="(Tu pojawi się wynik)", font_size=40)
         self.layout.add_widget(self.result_label)
 
         box_layout = BoxLayout(orientation='horizontal', size_hint=(1, None), height=50)
         self.layout.add_widget(box_layout)
 
-        button = Button(text="Go to Second Screen", size_hint=(None, None), size=(200, 50))
-        button.bind(on_press=self.goto_second_screen)
+        # Going back and instruction layout part
+        self.down_layout = GridLayout(
+            cols=2,
+            orientation='lr-bt',
+            )
+        
+        self.add_widget(self.down_layout)
 
-        box_layout.add_widget(button)
+        # Going back to the main screen part of GUI
+        go_back_button = Button(text="Go to Second Screen", size_hint=(None, None), size=(200, 50))
+        go_back_button.bind(on_press=self.goto_second_screen)
+        self.down_layout.add_widget(go_back_button)
+
+        # Create the "?" button
+        instruction_button = Button(text="?", size_hint=(None, None), size=(50, 50))
+        instruction_button.bind(on_press=self.show_help_popup)
+        self.down_layout.add_widget(instruction_button)
+        #box_layout.add_widget(instruction_button)
         self.add_widget(self.layout)
+
+        
 
 
     def goto_second_screen(self, instance):
         self.manager.current = 'second'
 
+    def show_help_popup(self, instance):
+        # Define the help messages for each label
+        help_message = instruction_text_1
+
+        # Create and open a popup window with the help message
+        popup_content = BoxLayout(orientation='vertical')
+        popup_content.add_widget(Label(text=help_message))
+        popup = Popup(title="Pomoc", content=popup_content, size_hint=(None, None), size=(1500, 750))
+        popup.open()
+    
+
     def update_input_labels(self, instance, value):
         if value == "Natężenie ruchu":
             self.intensity_label.text = "Ilość linii:"
             self.channels_label.text = "Współczynnik blokady:"
+            
+            self.mode_label.text = '[u]' + escape_markup("Obliczasz natężenie ruchu") + '[/u]'
         elif value == "Współczynnik blokady":
             self.intensity_label.text = "Intensywność zgłoszeń (w erlangach):"
             self.channels_label.text = "Liczba kanałów/linii:"
+            self.mode_label.text = '[u]' + escape_markup("Obliczasz współczynnik blokady") + '[/u]'
+
         elif value == "Ilość linii/kanałów":
             self.intensity_label.text = "Intensywność zgłoszeń (w erlangach)"
             self.channels_label.text = "Współczynnik blokady:"
+            self.mode_label.text = '[u]' + escape_markup("Obliczasz ilość linii/kanałów") + '[/u]'
 
 
     def calculate(self, instance):
@@ -113,40 +151,85 @@ class SecondScreen(Screen):
         super(SecondScreen, self).__init__(**kwargs)
         self.layout = GridLayout(cols=1, orientation='tb-lr')
 
+        self.mode_text = 'Generowanie wykresu wsp. blokady'
         # Mode label
         self.mode_label = Label(
-            text="Szkicowanie wykresu wsp. blokady \n dla wybranego przedziału:",
+            text='[u]' + escape_markup(self.mode_text) + '[/u]', markup=True,
             font_size=40)
         self.layout.add_widget(self.mode_label)
         self.add_widget(self.layout)
 
-        self.start_value_label = Label(text="Wartość początkowa")
+        self.start_value_label = Label(text="Początkowa intensywność zgłoszeń (w erlangach):", font_size=40)
         self.layout.add_widget(self.start_value_label)
         self.start_value = TextInput(multiline=False, size_hint=(0.3, None), height=40)
         self.layout.add_widget(self.start_value)
 
-        self.end_value_label = Label(text="Wartość końcowa")
+        self.end_value_label = Label(text="Końcowa intensywność zgłoszeń (w erlangach):", font_size=40)
         self.layout.add_widget(self.end_value_label)
         self.end_value = TextInput(multiline=False, size_hint=(0.3, None), height=40)
         self.layout.add_widget(self.end_value)
 
-        self.plot = Button(text="Pokaz wykres", font_size=40,)
+        self.lines_value_label = Label(text="Ilość linii/kanałów", font_size=40)
+        self.layout.add_widget(self.lines_value_label)
+        self.lines_value = TextInput(multiline=False, size_hint=(0.3, None), height=40)
+        self.layout.add_widget(self.lines_value)
+
+        self.plot = Button(text="Generuj wykres", font_size=40,)
         self.plot.bind(on_press=self.plot_graph_callback)
         self.layout.add_widget(self.plot)
 
+        self.spacer = Label(text="")
+        self.layout.add_widget(self.spacer)
+
+
+
+        # Going back and instruction layout part
+        self.down_layout = GridLayout(
+            cols=2,
+            orientation='lr-bt',
+            )
+        
+        self.add_widget(self.down_layout)
+
         # Going back to the main screen part of GUI
-        button = Button(text="Go to Main Screen", size_hint=(None, None), size=(200, 50))
-        button.bind(on_press=self.goto_main_screen)
-        self.layout.add_widget(button)
+        go_back_button = Button(text="Go to Main Screen", size_hint=(None, None), size=(200, 50))
+        go_back_button.bind(on_press=self.goto_main_screen)
+        self.down_layout.add_widget(go_back_button)
+
+        # Create the "?" button
+        instruction_button = Button(text="?", size_hint=(None, None), size=(50, 50))
+        instruction_button.bind(on_press=self.show_help_popup)
+        self.down_layout.add_widget(instruction_button)
+
+        # Positioning the go back button  at the left edge
+        go_back_button.pos_hint = {'x': 0}
+
+        # Positioning the instruction button at the right edge
+        instruction_button.pos_hint = {'right': 1}
+
+
+        
+
 
     
     def plot_graph_callback(self, instance):
         try:
             start = float(self.start_value.text)
             end = float(self.end_value.text)
-            plot_graph(start, end)  
+            lines_value = int(self.lines_value.text)
+            plot_graph(start, end, lines_value)
         except ValueError:
             display_value_error()
+
+    def show_help_popup(self, instance):
+        # Define the help messages for each label
+        help_message = instruction_text_2
+
+        # Create and open a popup window with the help message
+        popup_content = BoxLayout(orientation='vertical')
+        popup_content.add_widget(Label(text=help_message))
+        popup = Popup(title="Pomoc", content=popup_content, size_hint=(None, None), size=(1500, 750))
+        popup.open()
     
 
     def goto_main_screen(self, instance):

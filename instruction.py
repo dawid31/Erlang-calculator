@@ -1,4 +1,4 @@
-instruction_text = '''
+instruction_text_1 = '''
         Czym jest model erlanga?
         
         Modele Erlanga to matematyczne narzędzie do analizy ruchu w systemach kolejkowych. Stworzył je Agner Krarup Erlang.
@@ -21,4 +21,23 @@ instruction_text = '''
 
         Wartości zmiennoprzecinwkowe powinny być podawane tylko używając kropki "." jako separatora. Nie należy używać przecinka "," jako separatora.
         Ilość linii/kanałów powinna być liczbą dodatnią całkowitą natomiast zarówno współczynnik blokady jak i intensywność zgłoszeń mogą być liczbami zmiennoprzecinkowymi jak i całkowitymi.
+        '''
+
+instruction_text_2 = '''
+        Czym jest model erlanga?
+
+        Modele Erlanga to matematyczne narzędzie do analizy ruchu w systemach kolejkowych. Stworzył je Agner Krarup Erlang.
+        Mogą być stosowane w sieciach telekomunikacyjnych, supermarketach lub stacjach benzynowych.
+        Pozwalają oszacować prawdopodobieństwo blokady klienta w zależności od parametrów modelu.
+        Ta wiedza pomaga dostosować parametry systemu, aby osiągnąć wymaganą jakość usługi (QOS).
+
+        Jeśli używasz trybu generowania wykresu pamiętaj o następujących rzeczach
+
+        1) Wypełnij wszystkie pola
+
+        2) Pierwsze dwa pola dotyczą przedziału intensywności zgłoszeń dla którego zostanie stworzony wykres. Można tam wpisać zarówno wartości całkowite jak i zmiennoprzecinkowe
+
+        3) Trzecie pole dotyczy ilości linii/kanałów w podanym modelu. Należy tam wpisać liczbę całkowitą
+
+        4) Wartości zmiennoprzecinwkowe powinny być podawane tylko używając kropki "." jako separatora. Nie należy używać przecinka "," jako separatora.
         '''
