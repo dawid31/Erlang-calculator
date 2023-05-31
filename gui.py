@@ -121,8 +121,11 @@ class MainScreen(Screen):
             try:
                 field1 = int(self.intensity.text)
                 field2 = float(self.channels.text)
-                result = calculate_erlang_a(field1, field2) 
-                self.result_label.text = f"{mode}: {str(round(float(result), 5))}"
+                if field2 >= 1:
+                    display_value_error()
+                else:      
+                    result = calculate_erlang_a(field1, field2) 
+                    self.result_label.text = f"{mode}: {str(round(float(result), 5))}"
             except ValueError:
                 display_value_error()
 
@@ -139,8 +142,11 @@ class MainScreen(Screen):
             try:
                 field1 = float(self.intensity.text)
                 field2 = float(self.channels.text)
-                result = calculate_erlang_n(field1, field2)
-                self.result_label.text = f"{mode}: {str(round(float(result), 5))}"
+                if field2 >= 1:
+                    display_value_error()
+                else:
+                    result = calculate_erlang_n(field1, field2)
+                    self.result_label.text = f"{mode}: {str(round(int(result), 5))}"
             except ValueError:
                 display_value_error()
 
