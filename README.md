@@ -4,7 +4,13 @@ Kalkulator Erlanga to aplikacja umożliwiająca wyznaczenie współczynnika blok
 
 ## Model Erlanga
 
-Model Erlanga jest wykorzystywany do analizy i modelowania systemów telekomunikacyjnych oraz sieci komputerowych. Model ten opisuje proces obsługi zgłoszeń przychodzących w systemie, uwzględniając intensywność zgłoszeń i liczbę dostępnych linii obsługi. W modelu Erlanga przyjmuje się, że zgłoszenia przychodzą według rozkładu Poissona.
+Model Erlanga jest wykorzystywany do analizy i modelowania systemów telekomunikacyjnych oraz sieci komputerowych. Model ten opisuje proces obsługi zgłoszeń przychodzących w systemie, uwzględniając intensywność zgłoszeń i liczbę dostępnych linii obsługi. 
+
+<p align="center">
+  <img src="https://i.imgur.com/dH4VhqZ.png" width="80%" height="80%">
+  <img src="https://i.imgur.com/5fLOlml.png" width="80%" height="80%">
+  <img src="https://i.imgur.com/Oe7QY8m.png" width="80%" height="80%">
+</p>
 
 ## Funkcje kalkulatora
 
